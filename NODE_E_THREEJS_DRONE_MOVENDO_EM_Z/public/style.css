@@ -1,0 +1,18 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .p1 {
+    font-size: 30px;
+  }
+
+  .p2 {
+    font-size: 20px;
+  }
+
+  .p3 {
+    font-size: 20px;
+  }
