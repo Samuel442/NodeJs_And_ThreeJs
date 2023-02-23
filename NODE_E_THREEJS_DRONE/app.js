@@ -4,6 +4,10 @@ const app = express();              // app recebe tudo do framework express
 app.set('view engine', 'ejs');       // seta e usa uma view engine tipo ejs para renderizar o html
 app.use(express.static('public'));   // pasta pública que permite carregar os arquivos contidos nela
 
+app.get("/", function(req,res){  // cria rota drone
+    res.render("index_principal");                       // renderiza o aquivo html index.ejs (deve estar na pasta views)
+});
+
 app.get("/drone", function(req,res){     // cria rota drone
     res.render("index");                 // renderiza o aquivo html index.ejs (deve estar na pasta views)
 });
