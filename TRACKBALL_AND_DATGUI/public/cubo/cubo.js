@@ -1,4 +1,5 @@
 import { TrackballControls } from "./TrackballControls.js"; // importando a biblioteca GLTFLoader
+import { GUI } from "./dat.gui.module.js";
 
 function init()
 {
@@ -54,15 +55,15 @@ camera.position.z = 5;           // seta a posição da câmera em z = 5
 
     // parte da interface de controle GUI
     var controls = new function(){
-      this.rotateSpeed = 1;
+      this.rotationSpeed = 1;
       this.zoomSpeed = 1;
       this.panSpeed = 1;
     };
 
-    var gui = new dat.GUI({
-      autoplace: false,
-      width: 300
-    });
+   const gui = new GUI(
+      {autoplace: false,
+      width: 300}
+      );
     gui.add(controls, 'rotationSpeed', 0, 5);
     gui.add(controls, 'zoomSpeed', 0, 5);
     gui.add(controls,  'panSpeed', 0, 5);
@@ -71,7 +72,11 @@ camera.position.z = 5;           // seta a posição da câmera em z = 5
 function animate() {              // cria uma função de animar a cena
   var delta = clock.getDelta();   // difirença de tempo entre uma chamda da função animate e a próxima chamda da função animate
   trackballControls.update(delta); // calcula 
-  trackballControls.rotateSpeed = controls.rotationSpeed; // atualiza a câera com a escolha da interface gráfica
+  // abaixo temos a ligação dos controles do dat gui com o trackball
+  trackballControls.rotateSpeed = controls.rotationSpeed; // atualiza a câmera com a escolha da interface gráfica 
+  trackballControls.zoomSpeed = controls.zoomSpeed;
+  trackballControls.panSpeed = controls.panSpeed;
+  
   requestAnimationFrame(animate);  // recursivamente a função fica em loop
   //cube1.rotation.x += 0.01;      // rotaciona o cubo em x nessa velocidade
   //cube1.rotation.y += 0.01;      // rotaciona o cubo em y nessa velocidade
