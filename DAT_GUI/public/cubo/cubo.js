@@ -29,6 +29,15 @@ const material = new THREE.MeshBasicMaterial({color: 0x00ff00}); // cria um mate
 const cube = new THREE.Mesh(geometry, material); // por fim é criado o cubo com a geometria e o material que é a textura
 scene.add(cube);                                 // adiciona o cubo na cena
 
+// luz que vai iluminar o ambiente
+var luz_ambiente = new THREE.AmbientLight(0xffffff,  // construtor da luz ambiente 
+                                                1);  // intensidade da luz
+scene.add(luz_ambiente);                             // adiciona a cena
+
+// luz numa direção específica
+var luz_direcional = new THREE.DirectionalLight(0xffffff, // construtor da luz direcional
+                                                      1); // intensidade da luz
+scene.add(luz_direcional);                                // adiciona a cena
 
 camera.position.z = 5;           // seta a posição da câmera em z = 5
 
@@ -48,13 +57,7 @@ controls.dampingFactor = 0.1;  // regular o valor
       renderer.setSize(window.innerWidth, window.innerHeight); // altera as dimensoes da janela depois que alterou
     }
 
-    // parte da interface de controle GUI
-    var controls = new function(){
-      this.rotationSpeed = 1;
-      this.zoomSpeed = 1;
-      this.panSpeed = 1;
-    };
-
+// parte da interface de controle GUI
 const gui = new GUI();
 
 gui.add(cube.position, "x", -50, 50, 5).name("X posição");
