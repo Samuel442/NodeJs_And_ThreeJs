@@ -45,12 +45,12 @@ renderer.toneMappingExposure = 1;                    // regula o mapeamento de e
 renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolação das cores do ambiente
 
 // carregamento do gltf
-var carrega_gltf = new GLTFLoader(); // construtor para o carregamento do gltf
-var robo;                            // variável para receber a cena gltf
+const carrega_gltf = new GLTFLoader(); // construtor para o carregamento do gltf
+var robo;
 
 carrega_gltf.load("scene.gltf", function(gltf){  // carrega o arquivo gltf passando a função com argumento objeto gltf
-    robo = gltf.scene;                          // objeto recebe a cena
-    scene.add(gltf.scene);                       // adiciona o gltf a cena
+    const  robo = gltf.scene;                         // objeto recebe a cena
+    scene.add(robo);                             // adiciona o gltf a cena
 });
 
 // cor de fundo
