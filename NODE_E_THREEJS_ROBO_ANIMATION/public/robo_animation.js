@@ -24,7 +24,7 @@ camera.position.x = 10;    // na origem em x
 camera.position.y = -2;    // câmera distante -0.1 unidade de y
 camera.position.z = 160;   // câmera distante 10 unidades de z
 
-// rebderização
+// renderização
 var renderer = new THREE.WebGLRenderer();                // cria o construtor de renderização
 renderer.setSize(window.innerWidth, window.innerHeight); // seta a largura e altura
 document.body.appendChild(renderer.domElement);          // linka com o corpo do index do html
@@ -45,12 +45,35 @@ renderer.toneMappingExposure = 1;                    // regula o mapeamento de e
 renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolação das cores do ambiente
 
 // carregamento do gltf
-const carrega_gltf = new GLTFLoader(); // construtor para o carregamento do gltf
+var carrega_gltf = new GLTFLoader(); // construtor para o carregamento do gltf
 var robo;
 
 carrega_gltf.load("scene.gltf", function(gltf){  // carrega o arquivo gltf passando a função com argumento objeto gltf
     const  robo = gltf.scene;                         // objeto recebe a cena
     scene.add(robo);                             // adiciona o gltf a cena
+
+
+    // Add the model to the scene
+    scene.add( gltf.scene );
+
+    // Get the animations from the glTF file
+    var animations = gltf.animations;
+
+    // Create a mixer to play the animations
+    var mixer = new THREE.AnimationMixer( gltf.scene );
+
+    // Loop through each animation and add it to the mixer
+    for ( var i = 0; i < animations.length; i ++ ) {
+        var animation = animations[ i ];
+        var action = mixer.clipAction( animation );
+        action.play();
+    }
+
+
+
+
+
+
 });
 
 // cor de fundo
@@ -82,9 +105,17 @@ function onWindowResize(){                                 // função que proce
   renderer.setSize(window.innerWidth, window.innerHeight); // altera as dimensoes da janela depois que alterou
 }
 
+// Start the animation loop
+var clock = new THREE.Clock();
+var mixer;
+
 function animate(){                  // cria a função de animação
     requestAnimationFrame(animate);  // chama a animate recursivamente com o método requestAnimationFrame que faz atualizações
     renderer.render(scene, camera);  // renderiza a cena e câmera
+    // Update the animation mixer
+    if ( mixer ) {
+        mixer.update( clock.getDelta() );
+    }
 }
 animate();                           // chama a funçao de animação
 }
