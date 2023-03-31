@@ -33,21 +33,15 @@ renderer.toneMappingExposure = 1;                    // regula o mapeamento de e
 renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolação das cores do ambiente
 
 // figuras que formam o manipulador
-    // retangulo menor
-    var retangulo_menor;
-    var geometria_retangulo_menor = new THREE.BoxGeometry(0.3, 1, 0.2);
-    var material_retangulo_menor = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
-                                                              './textura.jpg') });
-    //var material_retangulo_menor = new THREE.MeshBasicMaterial({ color: 0xfffff0});
-    retangulo_menor = new THREE.Mesh(geometria_retangulo_menor, material_retangulo_menor);
-    retangulo_menor.position.set(1.3, 0.3, 0);
 
-    //var textura_material = new THREE.TextureLoader().load('./crate.gif');
-    //var geometria = new THREE.BoxGeometry(3, 3, 3);                   // construtor de geometria do cubo
-    //var material = new THREE.MeshBasicMaterial({map: textura_material});     // cria um material será a textura
-    //cube = new THREE.Mesh(geometria, material);
-    //scene.add(cube);
-  
+    // cilindro menor
+    var cilindro_menor;
+    var geometria_cilindro_menor = new THREE.CylinderGeometry(0.3, 0.1, 2, 32);
+    var material_cilindro_menor = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
+                                                                                    './textura.jpg') });
+    cilindro_menor = new THREE.Mesh(geometria_cilindro_menor, material_cilindro_menor);
+    cilindro_menor.position.set(1.3, 0.3, 0);
+
     // retangulo de cima
     var retangulo_cima;
     var geometria_retangulo_cima = new THREE.BoxGeometry(0.4, 2, 0.3);
@@ -60,25 +54,16 @@ renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolaçã
     const y = 0.9; // Y position of the top of the rectangle
     retangulo_cima.position.set(x, y, 0);
     retangulo_cima.rotation.z = angle;
-    /*
-    const angle = Math.PI / 9; // 20 degrees in radians
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    const x = 0; // X position of the base of the rectangle
-    const y = 0; // Y position of the base of the rectangle
-    rectangulo_cima.position.set(x + cos, y + sin, 0);
-    rectangulo_cima.rotation.z = angle;
-    */
   
-    // retangulo de baixo
-    var retangulo_baixo;
-    var geometria_retangulo_baixo = new THREE.BoxGeometry(0.4, 2, 0.3);
-    var material_retangulo_baixo = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
-      './textura.jpg') });
-    retangulo_baixo = new THREE.Mesh(geometria_retangulo_baixo, material_retangulo_baixo);
-    retangulo_baixo.position.set(-0.5, 0.1, 0);
-  
-    // cilindro
+    // cilindro de cima
+    var cilindro_cima;
+    var geometria_cilindro_cima = new THREE.CylinderGeometry(0.2, 0.2, 2, 32);
+    var material_cilindro_cima = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
+                                                                                    './textura.jpg') });
+    cilindro_cima = new THREE.Mesh(geometria_cilindro_cima, material_cilindro_cima);
+    cilindro_cima.position.set(-0.5, 0.1, 0);
+
+    // cilindro base
     var cilindro_base;
     var geometria_cilindro_base = new THREE.CylinderGeometry(0.3, 0.3, 2, 32);
     var material_cilindro_base = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
@@ -88,16 +73,16 @@ renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolaçã
   
     // plano
     var plano;
-    var geometria_plano_base = new THREE.PlaneGeometry(1, 2);
+    var geometria_plano_base = new THREE.PlaneGeometry(3, 2);
     var material_plano_base = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
-      './textura_plano.jpg') });
+                                                                         './textura_plano.jpg') });
     plano = new THREE.Mesh(geometria_plano_base, material_plano_base);
     plano.position.set(-0.5, -2.86, 0);
     plano.rotation.x = -Math.PI / 2; 
 
 // grupos
   const grupo = new THREE.Group(); //cria um grupo que rotaciona o robô por inteiro 
-  grupo.add(retangulo_baixo, retangulo_cima, retangulo_menor,cilindro_base, plano);
+  grupo.add(cilindro_cima, retangulo_cima, cilindro_menor,cilindro_base, plano);
   scene.add(grupo);  
 
 
@@ -112,15 +97,12 @@ var controls_orbit;                           // OrbitControls (Parte dos contro
 // Controles GUI
 var gui;
   gui = new GUI();
-  gui.add(retangulo_baixo.rotation, "y", 0, Math.PI * 2).name("Braço vertical");
-  gui.add(retangulo_cima.rotation,  "x", 0, Math.PI * 2).name("Braço horizontal");
+  gui.add(cilindro_cima.rotation, "y", 0, Math.PI * 2).name("Elo vertical");
+  gui.add(retangulo_cima.rotation,  "x", 0, Math.PI * 2).name("Elo horizontal");
   gui.add(cilindro_base.rotation,   "y", 0, Math.PI * 2).name("Cilindro base");
   gui.add(plano.rotation,           "z", 0, Math.PI * 2).name("Plano base");
-  gui.add(retangulo_menor.rotation, "y", 0, Math.PI * 2).name("Bico");
+  gui.add(cilindro_menor.rotation, "y", 0, Math.PI * 2).name("Bico");
   gui.add(grupo.rotation,           'y', 0, Math.PI * 2).name("completo");
-
-
-  //gui.add(robo_horizontal_bico.rotation, "z", 0, Math.PI * 2).name("Braço horizontal e bico");
 
     // responsividade da tela
 window.addEventListener('resize', onWindowResize, false);  // ouve eventos de alteração da dimensão da janela
