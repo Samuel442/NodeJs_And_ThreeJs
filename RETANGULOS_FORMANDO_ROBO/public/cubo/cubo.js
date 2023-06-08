@@ -34,10 +34,10 @@ renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolaçã
 // figuras que formam o manipulador
     // cilindro menor
     var cilindro_menor;
-    var geometria_cilindro_menor = new THREE.CylinderGeometry(0.3, 
-                                                              0.1,                                                               
-                                                                2, 
-                                                              32);
+    var geometria_cilindro_menor = new THREE.CylinderGeometry(0.3, // raio superior
+                                                              0.1, // raio inferior                                                               
+                                                                2, // altura
+                                                              32); // faces seguimentadas (resolução)
     var material_cilindro_menor = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(
                                                                                     './textura.jpg') });
     cilindro_menor = new THREE.Mesh(geometria_cilindro_menor, material_cilindro_menor);
@@ -102,9 +102,10 @@ renderer.outputEncoding = THREE.sRGBEncoding;        // método de interpolaçã
   grupo.add(cilindro_cima, retangulo_cima, cilindro_menor,cilindro_base, plano);
   scene.add(grupo);  
 
-  var axis;
-  axis = new THREE.AxesHelper(2);
-  scene.add(axis);
+  // cria os eixos
+  var axis;                       // variável que recebe os eixos
+  axis = new THREE.AxesHelper(2); // passa o tamanho dos eixos
+  scene.add(axis);                // adiciona a cena
 
 // controles de órbita
 var controls_orbit;                           // OrbitControls (Parte dos controles de zoom, giro, etc..)
@@ -117,7 +118,7 @@ var controls_orbit;                           // OrbitControls (Parte dos contro
 // Controles GUI
 var gui;
   gui = new GUI();
-  gui.add(cilindro_cima.rotation, "y", 0, Math.PI * 2).name("Elo vertical");
+  gui.add(cilindro_cima.rotation, "y", 0, Math.PI * 2).name("Elo vertical");   // Math.PI * 2 rotação no próprio diâmetro
   gui.add(retangulo_cima.rotation,"x", 0, Math.PI * 2).name("Elo horizontal");
   gui.add(cilindro_base.rotation, "y", 0, Math.PI * 2).name("Cilindro base");
   gui.add(plano.rotation,         "z", 0, Math.PI * 2).name("Plano base");
