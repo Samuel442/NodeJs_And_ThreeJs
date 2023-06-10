@@ -1,197 +1,181 @@
-import * as dat       from './dat.gui.module.js';
-import { GLTFLoader } from './GLTFLoader.js';
-import { OrbitControls } from './OrbitControls.js';
-import { RGBELoader } from './RGBELoader.js';
+import * as dat          from './dat.gui.module.js'; // Importando o módulo dat.GUI
+import { GLTFLoader }    from './GLTFLoader.js';     // Importando o carregador GLTFLoader
+import { OrbitControls } from './OrbitControls.js';  // Importando o controlador OrbitControls
+import { RGBELoader }    from './RGBELoader.js';     // Importando o carregador RGBELoader
 
 function init() {
-  // Cria a cena, a câmera e o renderizador
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(
-    100,
-    window.innerWidth / window.innerHeight,
-    0.01,
-    1000
+  var scene = new THREE.Scene();            // Criando a cena
+  var camera = new THREE.PerspectiveCamera( // Criando a câmera com projeção perspectiva
+    75,                                     // Campo de visão vertical
+    window.innerWidth / window.innerHeight, // Razão de aspecto
+    0.1,                                    // Plano de recorte próximo
+    1000                                    // Plano de recorte distante
   );
 
-  // Define a posição da câmera
-  camera.position.x = 10;
+  camera.position.x = 10;  // Definindo a posição da câmera
   camera.position.y = -2;
   camera.position.z = 160;
-  camera.lookAt(0, 0, 0);
+  camera.lookAt(0, 0, 0);  // Definindo o ponto para o qual a câmera está olhando
 
-  var renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  var renderer = new THREE.WebGLRenderer({ antialias: true }); // Criando o renderizador WebGL
+  renderer.setSize(window.innerWidth, window.innerHeight);     // Definindo o tamanho de renderização
+  renderer.shadowMap.enabled = true;                           // Habilitando o mapeamento de sombras
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;            // Definindo o tipo de mapeamento de sombras
+  document.body.appendChild(renderer.domElement);              // Adicionando o elemento do renderizador ao documento HTML
 
-  // Adiciona um conjunto de eixos à cena para referência visual
-  var axes = new THREE.AxesHelper(150);
-  scene.add(axes);
+  var axes = new THREE.AxesHelper(150); // Criando um objeto de ajuda visual com eixos
+  scene.add(axes);                      // Adicionando os eixos à cena
 
-  // Carrega o mapa de ambiente para iluminação
+  var luz_pontual = new THREE.PointLight(0xffffff, 1); // Criando uma luz pontual
+  luz_pontual.position.set(0, 50, 0);                  // Definindo a posição da luz
+  scene.add(luz_pontual);                              // Adicionando a luz à cena
+
   new RGBELoader().load('fundo.hdr', function (texture) {
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    scene.background = texture;
-    scene.environment = texture;
+    texture.mapping = THREE.EquirectangularReflectionMapping; // Configurando o mapeamento da textura como reflexão equiretangular
+    scene.background = texture;                               // Definindo a textura como plano de fundo da cena
+    scene.environment = texture;                              // Definindo a textura como ambiente da cena
   });
 
-  // Configura o renderizador
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
-  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; // Configurando o mapeamento de tons
+  renderer.toneMappingExposure = 1;                   // Configurando a exposição do mapeamento de tons
+  renderer.outputEncoding = THREE.sRGBEncoding;       // Configurando a codificação de saída
 
-  // Carrega o modelo GLTF do robô
-  var carrega_gltf = new GLTFLoader();
+  var carrega_gltf = new GLTFLoader(); // Criando o carregador GLTF
   var robo;
-  var modeloGroup = new THREE.Group();
-  scene.add(modeloGroup);
+  var modeloGroup = new THREE.Group(); // Criando um grupo para o modelo
+  scene.add(modeloGroup);              // Adicionando o grupo à cena
 
-  carrega_gltf.load('scene.gltf', function (gltf) {
-    robo = gltf.scene;
-    modeloGroup.add(robo);
+  carrega_gltf.load('scene.gltf', function (gltf) { // Carregando o modelo GLTF
+    robo = gltf.scene;                              // Obtendo a cena do modelo carregado
+    robo.position.x = 0;                            // Definindo a posição do modelo
+    robo.position.y = 0;
+    robo.position.z = 0;
+    modeloGroup.add(robo);                           // Adicionando o modelo ao grupo
 
-    // Imprime os nomes dos componentes do robô no console
     console.log('Componentes do Robô:');
-    logComponentNames(robo);
+    logComponentNames(robo); // Imprimindo o nome dos componentes do modelo
   });
 
-  // Função para imprimir os nomes dos componentes do robô
   function logComponentNames(object, parentName = '') {
     var objectName = parentName + object.name;
-    console.log(objectName);
+    console.log(objectName);                             // Imprimindo o nome do objeto/componente
 
     if (object.children.length > 0) {
       for (var i = 0; i < object.children.length; i++) {
-        logComponentNames(object.children[i], objectName + '/');
+        logComponentNames(object.children[i], objectName + '/'); // Chamada recursiva para imprimir os nomes dos filhos
       }
     }
   }
 
-  // Configura a iluminação ambiente e a luz direcional
-  scene.background = new THREE.Color(0xffffff);
-  var luz_ambiente = new THREE.AmbientLight(0xffffff, 1);
-  scene.add(luz_ambiente);
-  var luz_direcional = new THREE.DirectionalLight(0xffffff, 1);
-  scene.add(luz_direcional);
+  var luz_ambiente = new THREE.AmbientLight(0xffffff, 0.5); // Criando uma luz ambiente
+  scene.add(luz_ambiente);                                  // Adicionando a luz ambiente à cena
 
-  // Cria controles de órbita para interação com a cena
-  var controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.1;
+  var luz_direcional = new THREE.DirectionalLight(0xffffff, 0.5); // Criando uma luz direcional
+  luz_direcional.position.set(10, 10, 10);       // Definindo a posição da luz
+  luz_direcional.castShadow = true;              // Habilitando a projeção de sombras
+  luz_direcional.shadow.mapSize.width = 2048;    // Definindo o tamanho do mapa de sombras
+  luz_direcional.shadow.mapSize.height = 2048;
+  luz_direcional.shadow.camera.near = 0.5;       // Definindo a distância mínima de projeção de sombras
+  luz_direcional.shadow.camera.far = 500;        // Definindo a distância máxima de projeção de sombras
+  scene.add(luz_direcional);                     // Adicionando a luz direcional à cena
 
-  // Função chamada quando a janela é redimensionada
+  var controls = new OrbitControls(camera, renderer.domElement); // Criando o controlador de órbita
+  controls.enableDamping = true;                                 // Habilitando amortecimento de rotação
+  controls.dampingFactor = 0.1;                                  // Definindo o fator de amortecimento
+
   function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;  // Atualizando a relação de aspecto da câmera
+    camera.updateProjectionMatrix();                         // Atualizando a matriz de projeção da câmera
+    renderer.setSize(window.innerWidth, window.innerHeight); // Atualizando o tamanho de renderização
   }
 
-  window.addEventListener('resize', onWindowResize, false);
+  window.addEventListener('resize', onWindowResize, false); // Adicionando um ouvinte de redimensionamento da janela
 
-  var clock = new THREE.Clock();
+  var clock = new THREE.Clock();                             // Criando um relógio
   var mixer;
 
-  // Cria uma instância do GUI do dat.GUI
-  var gui = new dat.GUI();
+  var gui = new dat.GUI();    // Criando a interface de usuário interativa
 
-  // Define os controles para o componente 'UpperArm'
-  var upperArmControls = {
-    rotationSpeed: 0.01,
-    maxRotation: Math.PI / 4, // Definir o limite máximo de rotação do UpperArm
-    minRotation: -Math.PI / 2, // Definir o limite mínimo de rotação do UpperArm
+  var upperArmControls = {     // Controles para o braço superior
+    rotationSpeed: 0.01,       // Velocidade de rotação
+    maxRotation: Math.PI / 4,  // Rotação máxima permitida
+    minRotation: -Math.PI / 2, // Rotação mínima permitida
   };
 
-  var upperArmFolder = gui.addFolder('UpperArm');
+  var upperArmFolder = gui.addFolder('UpperArm'); // Criando uma pasta para os controles do braço superior
   upperArmFolder
     .add(upperArmControls, 'rotationSpeed', -0.1, 0.1, 0.01)
-    .name('Rotation Speed');
-  upperArmFolder.open();
+    .name('Rotation Speed'); // Adicionando um controle deslizante para a velocidade de rotação
+  upperArmFolder.open();     // Abrindo a pasta inicialmente
 
-  // Define os controles para o componente 'ForeArm'
-  var foreArmControls = {
-    rotationSpeed: 0.01,
-    maxRotation: Math.PI / 4, // Definir o limite máximo de rotação do ForeArm
-    minRotation: -Math.PI / 2, // Definir o limite mínimo de rotação do ForeArm
+  var foreArmControls = {      // Controles para o antebraço
+    rotationSpeed: 0.01,       // Velocidade de rotação
+    maxRotation: Math.PI / 4,  // Rotação máxima permitida
+    minRotation: -Math.PI / 2, // Rotação mínima permitida
   };
 
-  var foreArmFolder = gui.addFolder('ForeArm');
+  var foreArmFolder = gui.addFolder('ForeArm'); // Criando uma pasta para os controles do antebraço
   foreArmFolder
     .add(foreArmControls, 'rotationSpeed', -0.1, 0.1, 0.01)
-    .name('Rotation Speed');
-  foreArmFolder.open();
+    .name('Rotation Speed');  // Adicionando um controle deslizante para a velocidade de rotação
+  foreArmFolder.open();       // Abrindo a pasta inicialmente
 
-  // Define os controles para o componente 'Base'
-  var baseControls = {
-    rotationSpeedClockwise: 0.1, // Defina o valor máximo como 0.1 (antes era 0)
-    rotationSpeedCounterclockwise: -0.1, // Defina o valor mínimo como -0.1 (antes era -0.1)
+  var baseControls = {        // Controles para a base
+    rotationSpeed: 0.01,      // Velocidade de rotação
   };
 
-  var baseFolder = gui.addFolder('Base');
+  var baseFolder = gui.addFolder('Base'); // Criando uma pasta para os controles da base
   baseFolder
-    .add(baseControls, 'rotationSpeedClockwise', -0.1, 0.1, 0.01)
-    .name('Rotation Speed Clockwise');
-  baseFolder
-    .add(baseControls, 'rotationSpeedCounterclockwise', -0.1, 0.1, 0.01)
-    .name('Rotation Speed Counterclockwise');
-  baseFolder.open();
+    .add(baseControls, 'rotationSpeed', -0.1, 0.1, 0.01)
+    .name('Rotation Speed');              // Adicionando um controle deslizante para a velocidade de rotação
+  baseFolder.open();                      // Abrindo a pasta inicialmente
 
-  function animate() {
+  function animate() {             // Função de animação
     requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+    renderer.render(scene, camera); // Renderizando a cena com a câmera atual
 
     if (mixer) {
-      mixer.update(clock.getDelta());
+      mixer.update(clock.getDelta()); // Atualizando a animação do modelo
     }
 
-    // Rotação do componente 'UpperArm'
     if (robo) {
-      var upperArmComponent = robo.getObjectByName('UpperArm');
+      var upperArmComponent = robo.getObjectByName('UpperArm'); // Obtendo o componente do braço superior pelo nome
       if (upperArmComponent) {
         var newRotation = upperArmComponent.rotation.y + upperArmControls.rotationSpeed;
         if (
           newRotation >= upperArmControls.minRotation &&
           newRotation <= upperArmControls.maxRotation
         ) {
-          upperArmComponent.rotation.y = newRotation;
+          upperArmComponent.rotation.y = newRotation; // Atualizando a rotação do componente do braço superior
         }
       }
-    }
 
-    // Rotação do componente 'ForeArm'
-    if (robo) {
-      var foreArmComponent = robo.getObjectByName('ForeArm');
+      var foreArmComponent = robo.getObjectByName('ForeArm'); // Obtendo o componente do antebraço pelo nome
       if (foreArmComponent) {
         var newRotation = foreArmComponent.rotation.y + foreArmControls.rotationSpeed;
         if (
           newRotation >= foreArmControls.minRotation &&
           newRotation <= foreArmControls.maxRotation
         ) {
-          foreArmComponent.rotation.y = newRotation;
+          foreArmComponent.rotation.y = newRotation; // Atualizando a rotação do componente do antebraço
         }
       }
-    }
 
-    // Rotação do componente 'Base' (sentido horário)
-    if (robo) {
-      var baseComponent = robo.getObjectByName('Base');
+      var baseComponent = robo.getObjectByName('Base'); // Obtendo o componente da base pelo nome
       if (baseComponent) {
-        baseComponent.rotation.z += baseControls.rotationSpeedClockwise;
+        baseComponent.rotation.z += baseControls.rotationSpeed; // Atualizando a rotação do componente da base
       }
     }
 
-    // Rotação do componente 'Base' (sentido anti-horário)
-    if (robo) {
-      var baseComponent = robo.getObjectByName('Base');
-      if (baseComponent) {
-        baseComponent.rotation.z += baseControls.rotationSpeedCounterclockwise;
-      }
-    }
-
-    controls.update();
+    controls.update(); // Atualizando os controles de órbita
   }
 
-  animate();
+  animate();           // Iniciando a animação
 }
 
-init();
+init(); // Chamando a função de inicialização para iniciar o aplicativo
+
+
+
 
 
